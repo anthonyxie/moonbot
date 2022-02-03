@@ -2,7 +2,7 @@
   "name": "moonbot",
   "version": "1.0.0",
   "description": "Twitch chat bot and rewards interface",
-  "main": "databasetest.js",
+  "main": "moonbot.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
