@@ -95,8 +95,16 @@ function onMessageHandler (target, userstate, msg, self) {
   }
   else if (commandName === '!claimcoin' && coin > 0) {
     coin = coin - 1;
-    client.say('moonlimes', `${userstate['display-name']}, you have claimed a copium coin! There are ${coin} coins left!`);
+    
     //add coins to database
+    if (ref(db, 'users/' + userstate['display-name']) === null) {
+      writeUserData(userstate['display-name'], userstate['user-type'], 0);
+    }
+    var balance = ref(db, 'users/' + userstate['display-name'] + '/balance');
+    balance = balance + 1
+    writeUserData(userstate['display-name'], userstate['user-type'], balance);
+
+    client.say('moonlimes', `${userstate['display-name']}, you have claimed a copium coin, you now have ${balance} copium coins! There are ${coin} coins left!`);
   }
   else {
     console.log(`* Unknown command ${commandName}`);
