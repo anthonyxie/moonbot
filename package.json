@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Twitch chat bot and rewards interface",
   "main": "moonbot.js",
+  "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -15,5 +16,10 @@
   "bugs": {
     "url": "https://github.com/anthonyxie/moonbot/issues"
   },
-  "homepage": "https://github.com/anthonyxie/moonbot#readme"
+  "homepage": "https://github.com/anthonyxie/moonbot#readme",
+  "dependencies": {
+    "dotenv": "^16.0.0",
+    "firebase": "^9.6.6",
+    "tmi.js": "^1.8.5"
+  }
 }

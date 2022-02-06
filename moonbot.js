@@ -1,5 +1,6 @@
 import { initializeApp } from 'firebase/app';
-import { getDatabase, ref, set } from 'firebase/database';
+import { getDatabase, ref, set, get, runTransaction, child } from 'firebase/database';
+
 
 import 'dotenv/config'
 
@@ -28,7 +29,7 @@ function writeUserData(userId, type, balance) {
     });
 }
 
-const tmi = require('tmi.js');
+import tmi from 'tmi.js';
 
 // Define configuration options
 const opts = {
@@ -84,7 +85,7 @@ function onMessageHandler (target, userstate, msg, self) {
     client.say('moonlimes', `MrDestructoid WE ARE DISCONNECTING MrDestructoid`);
     client.disconnect();
   }
-  else if (commandName === 'COPING' && userstate['user-type'] === 'mod') {
+  else if (commandName === 'COPING' && (userstate['user-type'] === 'mod' ||  userstate['display-name'] === 'moonlimes')) {
     if (coin == 0) {
       coin = Math.floor(Math.random() * 5) + 1;
       client.say('moonlimes', `${coin} copium coins have dropped! Use !claimcoin to grab yourself one! COPIUMcoin`);
@@ -95,16 +96,53 @@ function onMessageHandler (target, userstate, msg, self) {
   }
   else if (commandName === '!claimcoin' && coin > 0) {
     coin = coin - 1;
-    
-    //add coins to database
-    if (ref(db, 'users/' + userstate['display-name']) === null) {
-      writeUserData(userstate['display-name'], userstate['user-type'], 0);
+    var userId = userstate['display-name'];
+    var usertype = userstate['user-type'];
+    console.log(usertype);
+    if (usertype === null) {
+      if (userId === 'moonlimes') {
+        usertype = 'broadcaster';
+      }
+      else {
+        usertype = 'viewer';
+      }
     }
-    var balance = ref(db, 'users/' + userstate['display-name'] + '/balance');
-    balance = balance + 1
-    writeUserData(userstate['display-name'], userstate['user-type'], balance);
+    console.log(usertype + 'new');
+    //add coins to database
+    const dbRef = ref(getDatabase());
+    get(child(dbRef, `users/${userId}`)).then((snapshot) => {
+      if (snapshot.exists()) {
+        console.log(snapshot.val().balance + 1);
+        var balance = snapshot.val().balance + 1;
+        //update balance
+        writeUserData(userstate['display-name'], usertype, balance);
+        client.say('moonlimes', `${userstate['display-name']}, you have claimed a copium coin, you now have ${balance} coins! There are ${coin} coins left!`);
+        
+      } else {
+        console.log("No data available");
+        writeUserData(userstate['display-name'], userstate['user-type'], 1);
+        var balance = 1;
+        console.log("New data written");
+        client.say('moonlimes', `${userstate['display-name']}, you have claimed a copium coin, you now have ${balance} coins! There are ${coin} coins left!`);
+      }
+    }).catch((error) => {
+      console.error(error);
+    });
+    
 
-    client.say('moonlimes', `${userstate['display-name']}, you have claimed a copium coin, you now have ${balance} copium coins! There are ${coin} coins left!`);
+    /** 
+    var dbRef = ref(getDatabase());
+    var balance = get(child(dbRef, `users/${userstate['display-name']}`)).then((snapshot) => {
+      if (snapshot.exists()) {
+        console.log(snapshot.val());
+      } else {
+        console.log("No data available");
+      }
+    }).catch((error) => {
+      console.error(error);
+    });
+    */
+    
   }
   else {
     console.log(`* Unknown command ${commandName}`);
