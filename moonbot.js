@@ -128,21 +128,20 @@ function onMessageHandler (target, userstate, msg, self) {
     }).catch((error) => {
       console.error(error);
     });
-    
-
-    /** 
-    var dbRef = ref(getDatabase());
-    var balance = get(child(dbRef, `users/${userstate['display-name']}`)).then((snapshot) => {
+  }
+  else if (commandName === '!balance') {
+    const dbRef = ref(getDatabase());
+    get(child(dbRef, `users/${userId}`)).then((snapshot) => {
       if (snapshot.exists()) {
-        console.log(snapshot.val());
+        client.say('moonlimes', `${userstate['display-name']}, you have ${snapshot.val().balance} coins!`);
+        
       } else {
         console.log("No data available");
+        client.say('moonlimes', `Hmmm, ${userstate['display-name']}, I don't think you have any copium coins`);
       }
     }).catch((error) => {
       console.error(error);
     });
-    */
-    
   }
   else {
     console.log(`* Unknown command ${commandName}`);
