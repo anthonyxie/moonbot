@@ -115,12 +115,12 @@ function onMessageHandler (target, userstate, msg, self) {
         console.log(snapshot.val().balance + 1);
         var balance = snapshot.val().balance + 1;
         //update balance
-        writeUserData(userstate['display-name'], usertype, balance);
-        client.say('moonlimes', `${userstate['display-name']}, you have claimed a copium coin, you now have ${balance} coins! There are ${coin} coins left!`);
+        writeUserData(userId, usertype, balance);
+        client.say('moonlimes', `${userId}, you have claimed a copium coin, you now have ${balance} coins! There are ${coin} coins left!`);
         
       } else {
         console.log("No data available");
-        writeUserData(userstate['display-name'], userstate['user-type'], 1);
+        writeUserData(userId, usertype, 1);
         var balance = 1;
         console.log("New data written");
         client.say('moonlimes', `${userstate['display-name']}, you have claimed a copium coin, you now have ${balance} coins! There are ${coin} coins left!`);
@@ -131,10 +131,10 @@ function onMessageHandler (target, userstate, msg, self) {
   }
   else if (commandName === '!balance') {
     const dbRef = ref(getDatabase());
+    var userId = userstate['display-name'];
     get(child(dbRef, `users/${userId}`)).then((snapshot) => {
       if (snapshot.exists()) {
         client.say('moonlimes', `${userstate['display-name']}, you have ${snapshot.val().balance} coins!`);
-        
       } else {
         console.log("No data available");
         client.say('moonlimes', `Hmmm, ${userstate['display-name']}, I don't think you have any copium coins`);
