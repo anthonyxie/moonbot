@@ -63,6 +63,16 @@ function onMessageHandler (target, userstate, msg, self) {
 
   // Remove whitespace from chat message
   const commandName = msg.trim();
+  var userId = userstate['display-name'];
+  var usertype = userstate['user-type'];
+  if (usertype === null) {
+    if (userId === 'moonlimes') {
+      usertype = 'broadcaster';
+    }
+    else {
+      usertype = 'viewer';
+    }
+  }
 
   // If the command is known, let's execute it
   if (commandName === '!dice') {
@@ -71,14 +81,14 @@ function onMessageHandler (target, userstate, msg, self) {
     console.log(`* Executed ${commandName} command`);
   } 
   else if (commandName === '!type') {
-    if (userstate['user-type'] === 'mod') {
-      client.say(target, `${userstate['display-name']}, you are a mod!`);
+    if (usertype === 'mod') {
+      client.say(target, `${userId}, you are a mod!`);
     }
-    else if (userstate['user-type'] === 'vip') {
-      client.say(target, `${userstate['display-name']}, you are a VIP!`);
+    else if (usertype === 'vip') {
+      client.say(target, `${userId}, you are a VIP!`);
     }
     else {
-      client.say(target, `${userstate['display-name']}, you are a viewer!`);  
+      client.say(target, `${userId}, you are a viewer!`);  
     }
   }
   else if (commandName === '!disconnect' && userstate['display-name'] === 'moonlimes') {
@@ -96,18 +106,6 @@ function onMessageHandler (target, userstate, msg, self) {
   }
   else if (commandName === '!claimcoin' && coin > 0) {
     coin = coin - 1;
-    var userId = userstate['display-name'];
-    var usertype = userstate['user-type'];
-    console.log(usertype);
-    if (usertype === null) {
-      if (userId === 'moonlimes') {
-        usertype = 'broadcaster';
-      }
-      else {
-        usertype = 'viewer';
-      }
-    }
-    console.log(usertype + 'new');
     //add coins to database
     const dbRef = ref(getDatabase());
     get(child(dbRef, `users/${userId}`)).then((snapshot) => {
@@ -123,7 +121,7 @@ function onMessageHandler (target, userstate, msg, self) {
         writeUserData(userId, usertype, 1);
         var balance = 1;
         console.log("New data written");
-        client.say('moonlimes', `${userstate['display-name']}, you have claimed a copium coin, you now have ${balance} coins! There are ${coin} coins left!`);
+        client.say('moonlimes', `${userId}, you have claimed a copium coin, you now have ${balance} coins! There are ${coin} coins left!`);
       }
     }).catch((error) => {
       console.error(error);
@@ -131,13 +129,12 @@ function onMessageHandler (target, userstate, msg, self) {
   }
   else if (commandName === '!balance') {
     const dbRef = ref(getDatabase());
-    var userId = userstate['display-name'];
     get(child(dbRef, `users/${userId}`)).then((snapshot) => {
       if (snapshot.exists()) {
-        client.say('moonlimes', `${userstate['display-name']}, you have ${snapshot.val().balance} coins!`);
+        client.say('moonlimes', `${userId}, you have ${snapshot.val().balance} coins!`);
       } else {
         console.log("No data available");
-        client.say('moonlimes', `Hmmm, ${userstate['display-name']}, I don't think you have any copium coins`);
+        client.say('moonlimes', `Hmmm, ${userId}, I don't think you have any copium coins`);
       }
     }).catch((error) => {
       console.error(error);
