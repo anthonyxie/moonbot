@@ -34,7 +34,7 @@ import tmi from 'tmi.js';
 // Define configuration options
 const opts = {
   identity: {
-    username: process.env.USERNAME,
+    username: process.env.NAME,
     password: process.env.PASSWORD
   },
   channels: [
