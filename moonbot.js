@@ -38,13 +38,14 @@ const opts = {
     password: process.env.PASSWORD
   },
   channels: [
-    'moonlimes'
+    process.env.CHANNEL_NAME
   ]
 };
 
 
 
 var coin = 0;
+var taken = [];
 
 // Create a client with our options
 const client = new tmi.client(opts);
@@ -106,26 +107,40 @@ function onMessageHandler (target, userstate, msg, self) {
   }
   else if (commandName === '!claimcoin' && coin > 0) {
     coin = coin - 1;
-    //add coins to database
     const dbRef = ref(getDatabase());
-    get(child(dbRef, `users/${userId}`)).then((snapshot) => {
-      if (snapshot.exists()) {
-        console.log(snapshot.val().balance + 1);
-        var balance = snapshot.val().balance + 1;
-        //update balance
-        writeUserData(userId, usertype, balance);
-        client.say('moonlimes', `${userId}, you have claimed a copium coin, you now have ${balance} coins! There are ${coin} coins left!`);
-        
-      } else {
-        console.log("No data available");
-        writeUserData(userId, usertype, 1);
-        var balance = 1;
-        console.log("New data written");
-        client.say('moonlimes', `${userId}, you have claimed a copium coin, you now have ${balance} coins! There are ${coin} coins left!`);
-      }
-    }).catch((error) => {
-      console.error(error);
-    });
+    
+    //make sure that user has not already taken a coin
+    if (taken.indexOf(userId) != -1) {
+      client.say('moonlimes', `Sorry, ${userId}, you've already claimed a coin!`);
+    }
+    else {
+      get(child(dbRef, `users/${userId}`)).then((snapshot) => {
+        if (snapshot.exists()) {
+          //calculate new balance
+          var balance = snapshot.val().balance + 1;
+          //update balance
+          writeUserData(userId, usertype, balance);
+          client.say('moonlimes', `${userId}, you have claimed a copium coin, you now have ${balance} coins! There are ${coin} coins left!`);
+          //add name to existing list
+          taken.push(userId);
+          console.log(taken);
+          
+        } else {
+          //if user is not already in database, add to database
+          console.log("No data available");
+          writeUserData(userId, usertype, 1);
+          var balance = 1;
+          console.log("New data written");
+          client.say('moonlimes', `${userId}, you have claimed a copium coin, you now have ${balance} coins! There are ${coin} coins left!`);
+        }
+      }).catch((error) => {
+        console.error(error);
+      });
+    }
+    //reset taken list once all coins taken
+    if (coin === 0) {
+      taken = [];
+    }
   }
   else if (commandName === '!balance') {
     const dbRef = ref(getDatabase());
