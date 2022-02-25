@@ -1,2 +1,2 @@
 # moonbot
-A chatbot written in JS for my twitch stream! Supports text commands, and manages a reward balance for chatters. 
+A chatbot written in JS for use in twitch streams! Supports text commands, and manages a reward balance for chatters. 
