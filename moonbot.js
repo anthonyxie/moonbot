@@ -67,7 +67,7 @@ function onMessageHandler (target, userstate, msg, self) {
   var userId = userstate['display-name'];
   var usertype = userstate['user-type'];
   if (usertype === null) {
-    if (userId === 'moonlimes') {
+    if (userId === process.env.CHANNEL_NAME) {
       usertype = 'broadcaster';
     }
     else {
@@ -92,17 +92,17 @@ function onMessageHandler (target, userstate, msg, self) {
       client.say(target, `${userId}, you are a viewer!`);  
     }
   }
-  else if (commandName === '!disconnect' && userstate['display-name'] === 'moonlimes') {
-    client.say('moonlimes', `MrDestructoid WE ARE DISCONNECTING MrDestructoid`);
+  else if (commandName === '!disconnect' && userstate['display-name'] === process.env.CHANNEL_NAME) {
+    client.say(process.env.CHANNEL_NAME, `MrDestructoid WE ARE DISCONNECTING MrDestructoid`);
     client.disconnect();
   }
-  else if (commandName === 'COPING' && (userstate['user-type'] === 'mod' ||  userstate['display-name'] === 'moonlimes')) {
+  else if (commandName === 'COPING' && (userstate['user-type'] === 'mod' ||  userstate['display-name'] === process.env.CHANNEL_NAME)) {
     if (coin == 0) {
       coin = Math.floor(Math.random() * 5) + 1;
-      client.say('moonlimes', `${coin} copium coins have dropped! Use !claimcoin to grab yourself one! COPIUMcoin`);
+      client.say(process.env.CHANNEL_NAME, `${coin} copium coins have dropped! Use !claimcoin to grab yourself one! COPIUMcoin`);
     }
     else {
-      client.say('moonlimes', `There are still ${coin} copium coins left to claim!`);
+      client.say(process.env.CHANNEL_NAME, `There are still ${coin} copium coins left to claim!`);
     }
   }
   else if (commandName === '!claimcoin' && coin > 0) {
@@ -111,7 +111,7 @@ function onMessageHandler (target, userstate, msg, self) {
     
     //make sure that user has not already taken a coin
     if (taken.indexOf(userId) != -1) {
-      client.say('moonlimes', `Sorry, ${userId}, you've already claimed a coin!`);
+      client.say(process.env.CHANNEL_NAME, `Sorry, ${userId}, you've already claimed a coin!`);
     }
     else {
       get(child(dbRef, `users/${userId}`)).then((snapshot) => {
@@ -120,7 +120,7 @@ function onMessageHandler (target, userstate, msg, self) {
           var balance = snapshot.val().balance + 1;
           //update balance
           writeUserData(userId, usertype, balance);
-          client.say('moonlimes', `${userId}, you have claimed a copium coin, you now have ${balance} coins! There are ${coin} coins left!`);
+          client.say(process.env.CHANNEL_NAME, `${userId}, you have claimed a copium coin, you now have ${balance} coins! There are ${coin} coins left!`);
           //add name to existing list
           taken.push(userId);
           console.log(taken);
@@ -131,7 +131,7 @@ function onMessageHandler (target, userstate, msg, self) {
           writeUserData(userId, usertype, 1);
           var balance = 1;
           console.log("New data written");
-          client.say('moonlimes', `${userId}, you have claimed a copium coin, you now have ${balance} coins! There are ${coin} coins left!`);
+          client.say(process.env.CHANNEL_NAME, `${userId}, you have claimed a copium coin, you now have ${balance} coins! There are ${coin} coins left!`);
         }
       }).catch((error) => {
         console.error(error);
@@ -146,10 +146,10 @@ function onMessageHandler (target, userstate, msg, self) {
     const dbRef = ref(getDatabase());
     get(child(dbRef, `users/${userId}`)).then((snapshot) => {
       if (snapshot.exists()) {
-        client.say('moonlimes', `${userId}, you have ${snapshot.val().balance} coins!`);
+        client.say(process.env.CHANNEL_NAME, `${userId}, you have ${snapshot.val().balance} coins!`);
       } else {
         console.log("No data available");
-        client.say('moonlimes', `Hmmm, ${userId}, I don't think you have any copium coins`);
+        client.say(process.env.CHANNEL_NAME, `Hmmm, ${userId}, I don't think you have any copium coins`);
       }
     }).catch((error) => {
       console.error(error);
@@ -169,7 +169,7 @@ function rollDice () {
 
 // Called every time the bot connects to Twitch chat
 function onConnectedHandler (addr, port) {
-  client.say('moonlimes', `MrDestructoid WE ARE CONNECTED MrDestructoid`)
+  client.say(process.env.CHANNEL_NAME, `MrDestructoid WE ARE CONNECTED MrDestructoid`)
   console.log(`* Connected to ${addr}:${port}`);
 }
 
