@@ -106,14 +106,14 @@ function onMessageHandler (target, userstate, msg, self) {
     }
   }
   else if (commandName === '!claimcoin' && coin > 0) {
-    coin = coin - 1;
-    const dbRef = ref(getDatabase());
     
+    const dbRef = ref(getDatabase());
     //make sure that user has not already taken a coin
     if (taken.indexOf(userId) != -1) {
       client.say(process.env.CHANNEL_NAME, `Sorry, ${userId}, you've already claimed a coin!`);
     }
     else {
+      
       get(child(dbRef, `users/${userId}`)).then((snapshot) => {
         if (snapshot.exists()) {
           //calculate new balance
@@ -122,7 +122,7 @@ function onMessageHandler (target, userstate, msg, self) {
           writeUserData(userId, usertype, balance);
           client.say(process.env.CHANNEL_NAME, `${userId}, you have claimed a copium coin, you now have ${balance} coins! There are ${coin} coins left!`);
           //add name to existing list
-          taken.push(userId);
+
           console.log(taken);
           
         } else {
@@ -133,14 +133,18 @@ function onMessageHandler (target, userstate, msg, self) {
           console.log("New data written");
           client.say(process.env.CHANNEL_NAME, `${userId}, you have claimed a copium coin, you now have ${balance} coins! There are ${coin} coins left!`);
         }
+        coin = coin - 1;
+        if (coin > 0) {
+          taken.push(userId);
+        }
+        else {
+          taken = [];
+        }
       }).catch((error) => {
         console.error(error);
       });
     }
     //reset taken list once all coins taken
-    if (coin === 0) {
-      taken = [];
-    }
   }
   else if (commandName === '!balance') {
     const dbRef = ref(getDatabase());
